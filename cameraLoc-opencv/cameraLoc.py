@@ -4,18 +4,18 @@ import math
 #https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 
 #Step 1 : Open Image and resize image by approximately width/4, height/4
-for imageNum in range(6719, 6727):
+for imageNum in range(6719, 6722):
 	img = cv2.imread('images/IMG_' + str(imageNum) + '.JPG')
 	print("\nImage Number " +  str(imageNum))
 	#Step 2 : Convert Image to grayscale, and find countours.
 	#cv2.imshow('image', img)
 	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	ret, thresh = cv2.threshold(gray,200,255,0)
-	img2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	_, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
 	#Step 3 : Find 3 vertices of the qr code square
 	# actual inner list of hierarchy descriptions
-	hierarchy = hierarchy[0] 
+	hierarchy = hierarchy[0]
 	vert = []
 	for i in range(0, len(contours)):
 		level = 0
@@ -48,7 +48,6 @@ for imageNum in range(6719, 6727):
 			vertex.append(approx[i][0])
 			#Print vertices' Locations, and mark them on the image 
 			#print (vertex[i])
-			cv2.circle(img,(vertex[i][0],vertex[i][1]),20,(0,0,255),-1)
 		for i in range(0, 3):
 			line.append(cv2.norm(vertex[i]-vertex[(i+1)%3]))
 
@@ -62,18 +61,16 @@ for imageNum in range(6719, 6727):
 		#Find 4th vertex 
 		#https://www.quora.com/How-do-I-find-the-4th-point-of-a-parallelogram-in-3D-coordinates
 		br = [(-tl[0]+tr[0]+bl[0]), (-tl[1]+tr[1]+bl[1])]
-
-
-
-
+		print(tl[0])
 		#Object Points
 		#8.8cm x 8.8cm
 		qrLoc = 8.8/2
-		objectPoints = np.array([[-qrLoc, qrLoc,0],
+		objectPoints = np.float32([[-qrLoc, qrLoc,0],
 								 [qrLoc, qrLoc,0], 
 								 [-qrLoc, -qrLoc,0], 
 								 [qrLoc, -qrLoc,0]])
 
+		obj_points = [[-qrLoc, qrLoc,0],[qrLoc, qrLoc,0], [-qrLoc, -qrLoc,0], [qrLoc, -qrLoc,0]]
 		#Image Points
 		imagePoints = np.float32([tl,bl,tr,br])
 
@@ -83,21 +80,30 @@ for imageNum in range(6719, 6727):
 		#fx, fy can be image width, cx and cy can be coordinates of the image center
 		#http://ksimek.github.io/2013/08/13/intrinsic/
 		height, width = img.shape[:2]
-		cameraMatrix = np.array([[width,0,width/2],
-								 [0,width,height/2],
-								 [0,0,1]])
+		print(str(height) + " and  " + str(width))
+		#cameraMatrix = np.float64([[width,0,width/2],
+		#						 [0,width,height/2],
+		#						 [0,0,1]])
+		ret, mtx, dist, rvec, tvec = cv2.calibrateCamera(objPoints, imagePoints, gray.shape[::-1],None,None)
+		cameraMatrix = mtx
+
+
 
 		#Get Rotation Vectors and Translation vectors
 		#https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
-		_, rvec, tvec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, np.zeros(4))
-		print(str(rvec)+ " and " +str(tvec))
+		_, rvec, tvec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, np.zeros(4),1)
+		rmat, _=cv2.Rodrigues(rvec)
+		print("Rotation Vector : \n" + str(rvec))
+		print("Translation Vector : \n" +str(tvec))
+		print("Rotation Matrix : \n" +str(rmat))
 
-		cv2.circle(img,(tl[0],tl[1]),20,(255,0,0),-1)
-		cv2.circle(img,(tr[0],tr[1]),20,(0,255,0),-1)
-		cv2.circle(img,(br[0],br[1]),20,(255,255,0),-1)
+		cv2.circle(img,(bl[0],bl[1]),10,(0,0,255),-1)
+		cv2.circle(img,(tl[0],tl[1]),10,(255,0,0),-1)
+		cv2.circle(img,(tr[0],tr[1]),10,(0,255,0),-1)
+		cv2.circle(img,(br[0],br[1]),10,(255,255,0),-1)
 
-	# img = cv2.resize(img, (720,960))
-	# cv2.imshow(str(imageNum), img)
+	img = cv2.resize(img, (720,960))
+	cv2.imshow(str(imageNum), img)
 
-	# cv2.waitKey(0) & 0xFF
-	# cv2.destroyAllWindows()
+	cv2.waitKey(0) & 0xFF
+	cv2.destroyAllWindows()
