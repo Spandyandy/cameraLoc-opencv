@@ -20,7 +20,6 @@ First, I tried to use Canny Edge detection.
 
 ![alt text](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/canny.jpg "Canny Edge Detection")
 
-![Canny](/stepbystep/canny.jpg)
+But I realized it was not really necessary, so I decided to convert image to grayscale and threshold to find contours instead.
 
-Format: ![Alt Text]()
 
