@@ -119,7 +119,6 @@ But then I realized matrix multiplication of rotation matrix and translation vec
 So I decided to use numpy.matmul(rmat, tvec) 
 <br><br>
 
-
 ![Plot](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/output/plot6719.png)
 
 QR code is on the (0, 0, 0), and the red dot is where the camera lens was.
