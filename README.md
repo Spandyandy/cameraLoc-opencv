@@ -18,6 +18,8 @@ Type 'python -B cameraLoc.py'
 
 First, I tried to use Canny Edge detection.
 
+![alt text](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/canny.jpg "Canny Edge Detection")
+
 ![Canny](/stepbystep/canny.jpg)
 
 Format: ![Alt Text]()
