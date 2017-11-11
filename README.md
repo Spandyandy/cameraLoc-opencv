@@ -4,6 +4,8 @@
 
 **Languages / Packages Used** : Python3, OpenCV2, pylab, matplotlib, math, numpy
 
+**DroneDeploy Coding Challenge**
+
 ## Summary
 
 A number of images taken from different positions and orientations with an iPhone 6 is given. Each image is the view of a pattern on a flat surface. The original pattern that was photographed is 8.8cm x 8.8cm and is included in the zip file. Write a Python program that will visualize (i.e. generate a graphic) where the camera was when each image was taken and how it was posed, relative to the pattern.
@@ -41,7 +43,7 @@ fx, fy can be image width, cx and cy can be coordinates of the image center
 
 ## Tests 
 
-![IMG_6719](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/images/IMG_6719.JPG)
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/images/IMG_6719.JPG" alt="IMG_6719" width="400">
 
 I tested with the first image (IMG_6719).
 
@@ -61,53 +63,52 @@ Pitch : 20.37632648002931
 
 Yaw : 30.813083452658223
 
-
-![Step 1](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/1.jpg "Step 1")
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/1.jpg" alt="Step_1" width="400">
 
 First, I printed the QR code and placed it on "(0, 0, 0)"
+<br><br>
 
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/2.jpg" alt="Step_2" width="400">
 
-![Step 2](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/2.jpg "Step 2")
+I placed my phone camera on (0, 0, 0). I was not sure about the initial orientation. 
+<br><br>
 
-I placed my phone camera on (0, 0, 0). I was not sure about the initial orientation.
-
-
-![Step 3](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/3.jpg "Step 3")
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/3.jpg" alt="Step_3" width="400">
 
 I translated phone 27.13 cm to the x-axis.
+<br><br>
 
-
-![Step 4](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/4.jpg "Step 4")
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/4.jpg" alt="Step_4" width="400">
 
 I translated phone -34.95 cm to the y-axis.
+<br><br>
 
-
-![Step 5](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/5.jpg "Step 5")
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/5.jpg" alt="Step_5" width="400">
 
 I translated phone 56.9243 cm to the z-axis.
-
 Here we can see that this was the location where the image was taken.
+<br><br>
 
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/6.jpg" alt="Step_6" width="400">
 
-![Step 6](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/6.jpg "Step 6")
+I rotated my phone around x-axis (Roll) 148.68 degree. 
+<br><br>
 
-I rotated my phone around x-axis (Roll) 148.68 degree.
-
-
-![Step 7](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/7.jpg "Step 7")
-
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/7.jpg" alt="Step_7" width="400">
+ 
 I rotated my phone around y-axis (Pitch) 20.38 degree.
+<br><br>
+
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/8.jpg" alt="Step_8" width="400">
+
+I rotated my phone around z-axis (Yaw) 30.81 degree. 
+<br><br>
 
 
-![Step 8](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/8.jpg "Step 8")
-
-I rotated my phone around z-axis (Yaw) 30.81 degree.
-
-
-![Step 9](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/9.jpg "Step 9")
+<img src="https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/9.jpg" alt="Step_9" width="400">
 
 The camera screen of my phone seems to match the given input image! (Well, pretty close)
-
+<br><br>
 
 ![Calculations](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/steps/calculations.jpg)
 
@@ -115,7 +116,8 @@ This is how to find the point where the camera was looking at. (Focal Point)
 
 But then I realized matrix multiplication of rotation matrix and translation vector gives exactly same thing
 
-So I decided to use numpy.matmul(rmat, tvec)
+So I decided to use numpy.matmul(rmat, tvec) 
+<br><br>
 
 
 ![Plot](https://github.com/Spandyandy/cameraLoc-opencv/blob/master/output/plot6719.png)
@@ -124,8 +126,8 @@ QR code is on the (0, 0, 0), and the red dot is where the camera lens was.
 
 The red line represents the angle/orientation camera was pointing. 
 
-The end of the line below z-axis is where the focal point was.
-
+The end of the line below z-axis is where the focal point was. 
+<br><br>
 
 ## Different Approach
 
