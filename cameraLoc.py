@@ -3,7 +3,6 @@ import cv2
 import math
 from plotCam import plot3D 
 __author__ = "Junghoo Andy Kim"
-#http://danceswithcode.net/engineeringnotes/rotations_in_3d/demo3D/rotations_in_3d_tool.html
 
 def cvtImgToGray(img):
 	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -25,12 +24,11 @@ def find3Contours(contours, hierarchy):
 			cnts.append(contours[i])
 	return cnts
 
+#Contour Perimeter of Closed Contour
+#Epsilon is the maximum distance from contour to approximated contour. 
 def contourApproximation(vert):
 	cnt = np.concatenate((vert[0], vert[1], vert[2]))
-	#Contour Perimeter of Closed Contour
 	epsilon = 0.1*cv2.arcLength(cnt,True)
-	#Second argument is epsilon, which is maximum distance from contour to approximated contour. 
-	#It is an accuracy parameter. A wise selection of epsilon is needed to get the correct output.
 	approx = cv2.approxPolyDP(cnt, epsilon, True)
 	return approx
 
@@ -48,7 +46,6 @@ def calcVertices(approx):
 	if np.cross(tl-tr,tl-bl) < 0:
 		tr,bl = bl,tr
 	#Find 4th vertex 
-	#https://www.quora.com/How-do-I-find-the-4th-point-of-a-parallelogram-in-3D-coordinates
 	br = [(-tl[0]+tr[0]+bl[0]), (-tl[1]+tr[1]+bl[1])]
 	return [tl, bl, br, tr]
 
@@ -116,22 +113,17 @@ for imageNum in range(6719, 6728):
 
 	# Step 4 : Contour Approximation
 	# The approximated curve for epsilon = 10% of arc length
-	# Reference : https://docs.opencv.org/3.3.0/dd/d49/tutorial_py_contour_features.html
 	approx = contourApproximation(cnts)
 
 
 	# Step 5 : Calculate vertices' locations
 	# From "pattern.png", find top-left, top-right, bottom-left, bottom-right (tl, tr, bl, br) 
-	# Reference : http://answers.opencv.org/question/14188/calc-eucliadian-distance-between-two-single-point/
 	vertices = calcVertices(approx)
 
 
 	# Step 6 : Use solvePnP and Rodrigues to get translation vectors and rotation matrix
-	# Camera Matrix = [fx 0  cx
-	#		  		   0  fy cy
-	#				   0  0  1 ]
+	# Camera Matrix = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]
 	# fx, fy can be image width, cx and cy can be coordinates of the image center
-	# Reference : https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 	objectPoints, imagePoints, cameraMatrix = getSolvePnPInputs(img, vertices)
 	_, rvec, tvec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, np.zeros(4),1)
 	rmat, _=cv2.Rodrigues(rvec)
@@ -139,8 +131,6 @@ for imageNum in range(6719, 6728):
 
 
 	# Step 7 : Get Roll, Pitch, Yaw values from Rotation Matrix
-	# Reference : https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2012/07/euler-angles.pdf
-	# https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 	roll, pitch, yaw = getRPY(rmat)
 
 
