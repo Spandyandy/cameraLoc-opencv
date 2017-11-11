@@ -1,11 +1,7 @@
 import numpy as np
 import cv2
 import math
-import pygame
-from pygame.locals import *
-from OpenGL.GL import *
-from OpenGL.GLU import *
-
+from plotCam import plot3D
 __author__ = "Junghoo Andy Kim"
 #http://danceswithcode.net/engineeringnotes/rotations_in_3d/demo3D/rotations_in_3d_tool.html
 
@@ -76,7 +72,6 @@ def getSolvePnPInputs(img, vertices):
 	#					0  fy cy
 	#					0  0  1]
 	#fx, fy can be image width, cx and cy can be coordinates of the image center
-	#http://ksimek.github.io/2013/08/13/intrinsic/
 	height, width = img.shape[:2]
 	cameraMatrix = np.float64([[width,0,width/2],
 							 [0,width,height/2],
@@ -85,17 +80,18 @@ def getSolvePnPInputs(img, vertices):
 	return objectPoints, imagePoints, cameraMatrix
 
 def getPRY(m):
-
 	sy = math.sqrt(m[0][0]*m[0][0] + m[1][0]*m[1][0])
 	x = math.atan2(m[1][0], m[0][0])
 	y = math.atan2(-m[2][0], sy)
 	z = math.atan2(m[2][1], m[2][2])
 	return x*180/math.pi, y*180/math.pi, z*180/math.pi
 
-
+def drawVertices(img, imageNum, vertices):
+	drawCircles(img, vertices)
+	img = cv2.resize(img, (720,960))
+	cv2.imshow(str(imageNum), img)
 
 for imageNum in range(6719, 6727):
-
 	#Step 1 : Open Image
 	img = cv2.imread('images/IMG_' + str(imageNum) + '.JPG')
 	print("\nImage Number " +  str(imageNum))
@@ -121,36 +117,28 @@ for imageNum in range(6719, 6727):
 	# From "pattern.png", find top-left, top-right, bottom-left (tl, tr, bl) 
 	# Reference : http://answers.opencv.org/question/14188/calc-eucliadian-distance-between-two-single-point/
 	vertices = calcVertices(approx)
-	drawCircles(img, vertices)
 
 	# Step 6 : Use solvePnP and Rodrigues to get translation vectors and rotation matrix
 	# Get Rotation Vectors and Translation vectors
 	# Reference : https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
+	# Reference : http://ksimek.github.io/2013/08/13/intrinsic/
 	objectPoints, imagePoints, cameraMatrix = getSolvePnPInputs(img, vertices)
 	_, rvec, tvec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, np.zeros(4),1)
 	rmat, _=cv2.Rodrigues(rvec)
+	tvec = -np.dot(rmat.T,tvec)
 
 	# Step 7 : Get Pitch Roll Yaw values from Rotation Matrix
 	# Reference : https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2012/07/euler-angles.pdf
 	# https://www.learnopencv.com/rotation-matrix-to-euler-angles/
 	yaw, pitch, roll = getPRY(rmat)
 	
-
-
-
-	tvec=-np.dot(rmat.T,tvec)
 	print("\nTranslation Vector : \n" +str(tvec))
 	print("\nRotation : \n" +str(rmat))
 	print("\nRoll : " + str(roll))
-	print("\nPitch : " + str(pitch))
-	print("\nYaw : " + str(yaw))
+	print("Pitch : " + str(pitch))
+	print("Yaw : " + str(yaw))
+	print("------------------------------------------")
 
-
-
-
-
-	# img = cv2.resize(img, (720,960))
-	# cv2.imshow(str(imageNum), img)
-
-	# cv2.waitKey(0) & 0xFF
-	# cv2.destroyAllWindows()
+	drawVertices(img, imageNum, vertices)
+	plot3D(tvec[0], tvec[1], tvec[2], roll, pitch, yaw)
+	cv2.destroyAllWindows()
