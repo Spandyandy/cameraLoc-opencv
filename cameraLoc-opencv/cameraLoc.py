@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import math
-from plotCam import plot3D
+from plotCam import plot3D 
 __author__ = "Junghoo Andy Kim"
 #http://danceswithcode.net/engineeringnotes/rotations_in_3d/demo3D/rotations_in_3d_tool.html
 
@@ -65,80 +65,88 @@ def getSolvePnPInputs(img, vertices):
 							 [-qrLength, -qrLength,0], 
 							 [qrLength, -qrLength,0], 
 							 [qrLength, qrLength,0]])
-
 	imagePoints = np.float32(vertices)
-
-	#Camera Matrix A = [fx 0  cx
-	#					0  fy cy
-	#					0  0  1]
-	#fx, fy can be image width, cx and cy can be coordinates of the image center
 	height, width = img.shape[:2]
 	cameraMatrix = np.float64([[width,0,width/2],
 							 [0,width,height/2],
 							 [0.0,0.0,1.0]])
-
 	return objectPoints, imagePoints, cameraMatrix
 
-def getPRY(m):
+def getRPY(m):
 	sy = math.sqrt(m[0][0]*m[0][0] + m[1][0]*m[1][0])
 	x = math.atan2(m[1][0], m[0][0])
 	y = math.atan2(-m[2][0], sy)
 	z = math.atan2(m[2][1], m[2][2])
-	return x*180/math.pi, y*180/math.pi, z*180/math.pi
+	return z*180/math.pi, y*180/math.pi, x*180/math.pi
 
 def drawVertices(img, imageNum, vertices):
 	drawCircles(img, vertices)
-	img = cv2.resize(img, (720,960))
+	img = cv2.resize(img, (600,800))
 	cv2.imshow(str(imageNum), img)
 
-for imageNum in range(6719, 6727):
+def printInfo(tvec, roll, pitch, yaw):
+	print("X : " +str(tvec[0][0]))
+	print("Y : " +str(tvec[1][0]))
+	print("Z : " +str(tvec[2][0]))
+	print("Roll : " + str(roll) )
+	print("Pitch : " + str(pitch))
+	print("Yaw : " + str(yaw))
+	print("------------------------------------------\n")
+
+
+
+for imageNum in range(6719, 6728):
+
 	#Step 1 : Open Image
 	img = cv2.imread('images/IMG_' + str(imageNum) + '.JPG')
 	print("\nImage Number " +  str(imageNum))
 
+
 	#Step 2 : Convert Image to grayscale, and find countours.
-	#cv2.imshow('image', img)
 	contours, hierarchy = cvtImgToGray(img)
 
+
 	#Step 3 : Find 3 contours of the qr code square
-	# Actual inner list of hierarchy descriptions
-	# If can't detect 3 nested squares, then qr code is not found
+	# Qr code is not found, if # of nested contours != 3
 	cnts = find3Contours(contours, hierarchy)
 	if len(cnts) != 3:
 	 	print("QR code not found!")
 	 	continue
 
+
 	# Step 4 : Contour Approximation
-	# It approximates a contour shape to another shape with less number of vertices depending upon the precision we specify.
+	# The approximated curve for epsilon = 10% of arc length
 	# Reference : https://docs.opencv.org/3.3.0/dd/d49/tutorial_py_contour_features.html
 	approx = contourApproximation(cnts)
 
+
 	# Step 5 : Calculate vertices' locations
-	# From "pattern.png", find top-left, top-right, bottom-left (tl, tr, bl) 
+	# From "pattern.png", find top-left, top-right, bottom-left, bottom-right (tl, tr, bl, br) 
 	# Reference : http://answers.opencv.org/question/14188/calc-eucliadian-distance-between-two-single-point/
 	vertices = calcVertices(approx)
 
+
 	# Step 6 : Use solvePnP and Rodrigues to get translation vectors and rotation matrix
-	# Get Rotation Vectors and Translation vectors
+	# Camera Matrix = [fx 0  cx
+	#		  		   0  fy cy
+	#				   0  0  1 ]
+	# fx, fy can be image width, cx and cy can be coordinates of the image center
 	# Reference : https://docs.opencv.org/2.4/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
-	# Reference : http://ksimek.github.io/2013/08/13/intrinsic/
 	objectPoints, imagePoints, cameraMatrix = getSolvePnPInputs(img, vertices)
 	_, rvec, tvec = cv2.solvePnP(objectPoints, imagePoints, cameraMatrix, np.zeros(4),1)
 	rmat, _=cv2.Rodrigues(rvec)
-	tvec = -np.dot(rmat.T,tvec)
+	tvec = -np.dot(rmat.T, tvec)
 
-	# Step 7 : Get Pitch Roll Yaw values from Rotation Matrix
+
+	# Step 7 : Get Roll, Pitch, Yaw values from Rotation Matrix
 	# Reference : https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2012/07/euler-angles.pdf
 	# https://www.learnopencv.com/rotation-matrix-to-euler-angles/
-	yaw, pitch, roll = getPRY(rmat)
-	
-	print("\nTranslation Vector : \n" +str(tvec))
-	print("\nRotation : \n" +str(rmat))
-	print("\nRoll : " + str(roll))
-	print("Pitch : " + str(pitch))
-	print("Yaw : " + str(yaw))
-	print("------------------------------------------")
+	roll, pitch, yaw = getRPY(rmat)
 
+
+	# Step 8 : Print data, show image, plot 
+	# Matrix multiplication of rotation matrix and translation vector gives the direction of camera
+	printInfo(tvec, roll, pitch, yaw)
 	drawVertices(img, imageNum, vertices)
-	plot3D(tvec[0], tvec[1], tvec[2], roll, pitch, yaw)
+	plot3D(tvec[0], tvec[1], tvec[2], imageNum, np.matmul(rmat,tvec))
 	cv2.destroyAllWindows()
