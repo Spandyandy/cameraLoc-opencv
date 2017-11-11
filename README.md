@@ -18,7 +18,7 @@ Type 'python -B cameraLoc.py'
 
 First, I tried to use Canny Edge detection.
 
-![Canny](/stepbystep/canny.png)
+![Canny](/stepbystep/canny.jpg)
 
 Format: ![Alt Text]()
 
