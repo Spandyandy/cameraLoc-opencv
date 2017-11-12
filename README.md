@@ -1,10 +1,10 @@
-# Camera Localization 
+# Camera Pose Visualization 
 
 **Author : Junghoo Kim (Andy)**
 
 **Languages / Packages Used** : Python3, OpenCV2, pylab, matplotlib, math, numpy
 
-**DroneDeploy Coding Challenge**
+**DroneDeploy Coding Challenge Option 1**
 
 ## Summary
 
