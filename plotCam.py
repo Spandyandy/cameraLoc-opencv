@@ -5,7 +5,12 @@ from matplotlib._png import read_png
 import math
 __author__ = "Junghoo Andy Kim"
 
-def plot3D(x, y, z, imageNum, loc):
+def plot3D(tvec, imageNum, loc):
+	x = tvec[0]
+	y = tvec[1]
+	z = tvec[2]
+	qrLen = 8.8
+
 
 	# Setup
 	fig = plt.figure()
@@ -14,7 +19,6 @@ def plot3D(x, y, z, imageNum, loc):
 
 
 	# QR Code Image lying on location (0,0,0)
-	qrLen = 8.8
 	qr = read_png("./images/pattern.png")
 	xQR, yQR = ogrid[0:qr.shape[0], 0:qr.shape[1]]
 	xQR = (xQR * qrLen / 330) - (qrLen / 2)

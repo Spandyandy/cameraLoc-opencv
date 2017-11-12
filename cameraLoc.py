@@ -4,7 +4,7 @@ import math
 from plotCam import plot3D 
 __author__ = "Junghoo Andy Kim"
 
-def cvtImgToGray(img):
+def cvtFindContours(img):
 	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 	ret, thresh = cv2.threshold(gray,200,255,0)
 	_, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -49,12 +49,6 @@ def calcVertices(approx):
 	br = [(-tl[0]+tr[0]+bl[0]), (-tl[1]+tr[1]+bl[1])]
 	return [tl, bl, br, tr]
 
-def drawCircles(img, vertices):
-	cv2.circle(img,(vertices[0][0],vertices[0][1]),10,(0,0,255),-1)
-	cv2.circle(img,(vertices[1][0],vertices[1][1]),10,(255,0,0),-1)
-	cv2.circle(img,(vertices[2][0],vertices[2][1]),10,(0,255,0),-1)
-	cv2.circle(img,(vertices[3][0],vertices[3][1]),10,(255,255,0),-1)
-
 def getSolvePnPInputs(img, vertices):
 	#8.8cm x 8.8cm
 	qrLength = 8.8/2
@@ -76,8 +70,9 @@ def getRPY(m):
 	z = math.atan2(m[2][1], m[2][2])
 	return z*180/math.pi, y*180/math.pi, x*180/math.pi
 
-def drawVertices(img, imageNum, vertices):
-	drawCircles(img, vertices)
+def showImg(img, imageNum, vertices):
+	for i in range(0,4):
+		cv2.circle(img,(vertices[i][0],vertices[i][1]),20,((i+2)%4*80,(i+1)%4*80,i*80),-1)
 	img = cv2.resize(img, (600,800))
 	cv2.imshow(str(imageNum), img)
 
@@ -100,7 +95,7 @@ for imageNum in range(6719, 6728):
 
 
 	#Step 2 : Convert Image to grayscale, and find countours.
-	contours, hierarchy = cvtImgToGray(img)
+	contours, hierarchy = cvtFindContours(img)
 
 
 	#Step 3 : Find 3 contours of the qr code square
@@ -137,6 +132,6 @@ for imageNum in range(6719, 6728):
 	# Step 8 : Print data, show image, plot 
 	# Matrix multiplication of rotation matrix and translation vector gives the direction of camera
 	printInfo(tvec, roll, pitch, yaw)
-	drawVertices(img, imageNum, vertices)
-	plot3D(tvec[0], tvec[1], tvec[2], imageNum, np.matmul(rmat,tvec))
+	showImg(img, imageNum, vertices)
+	plot3D(tvec, imageNum, np.matmul(rmat,tvec))
 	cv2.destroyAllWindows()
