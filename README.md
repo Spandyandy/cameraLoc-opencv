@@ -4,7 +4,6 @@
 
 **Languages / Packages Used** : Python3, OpenCV2, pylab, matplotlib, math, numpy
 
-**DroneDeploy Coding Challenge Option 1**
 
 ## Summary
 
